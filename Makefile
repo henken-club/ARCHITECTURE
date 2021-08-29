@@ -1,12 +1,11 @@
 PLANTUML_JAR_URL = https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
 
-DIAGRAMS_SRC := $(wildcard diagrams/*.plantuml diagrams/*.puml)
-DIAGRAMS_OUT := $(abspath dist)
+DIAGRAMS_SRC := $(wildcard diagrams/*.plantuml)
+DIAGRAMS_OUT := $(addprefix dist/,$(notdir $(basename $(DIAGRAMS_SRC))))
 
-png:
-	plantuml $(DIAGRAMS_SRC) -o $(DIAGRAMS_OUT) -tpng
+render: $(DIAGRAMS_OUT)
 
-svg:
-	plantuml $(DIAGRAMS_SRC) -o $(DIAGRAMS_OUT) -tsvg
+dist/%: diagrams/%.plantuml
+	plantuml $^ -output $(abspath dist/$(notdir $(basename $^))) -tpng
 
-.PHONY: png svg
+.PHONY: render
