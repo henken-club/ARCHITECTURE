@@ -1,4 +1,5 @@
 @startuml create-user
+skinparam shadowing false
 skinparam responseMessageBelowArrow true
 skinparam sequenceMessageAlign center
 
