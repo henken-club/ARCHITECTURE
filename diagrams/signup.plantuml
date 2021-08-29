@@ -1,0 +1,166 @@
+@startuml create-user
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign center
+
+actor "ユーザ" as User
+participant "Frontend" as Frontend
+participant "BFF" as BFF
+participant "Account" as Account
+
+database "TempAccount" as TempAccount_Table
+database "Account" as Account_Table
+database "Registeration" as Registeration_Table
+
+participant "Mailer" as Mailer
+
+== 仮アカウントを作成 ==
+
+User -> Frontend: /signup
+activate Frontend
+
+Frontend -> BFF: createTempAccount()
+
+activate BFF
+BFF -> Account: 仮アカウント作成依頼
+
+activate Account
+Account -> Account_Table: メールアドレスの重複を確認　
+Account -> Account_Table: エイリアスの重複を確認
+
+break 既に存在するアカウント
+Account <-- Account_Table: メールアドレスかエイリアスが重複している
+BFF <-- Account: Error
+Frontend <-- BFF: Error
+User <-- Frontend: 重複している旨を通知
+end
+
+opt 仮アカウントがいない場合
+Account -> TempAccount_Table: アカウント生成
+else 仮アカウントが既にある場合
+Account -> TempAccount_Table: アカウント上書き
+end
+Account -> Account: ランダムな認証コードを生成
+Account -> Account: ランダムな登録トークンを生成
+Account -> Account: 認証コードの有効期限を計算
+
+Account -> Registeration_Table: 認証コード，登録トークン，仮アカウントID，有効期限を保存
+Registeration_Table -> TempAccount_Table: アカウントIDで関連付け
+Account <-- Registeration_Table: 返答
+
+Account -> Mailer: 認証コードのメール送信を依頼
+Mailer -> User: 認証URLをメール送信
+
+BFF <-- Account: 登録トークン，有効期限を返却
+deactivate Account
+
+BFF --> Frontend: 登録トークンと有効期限を返却
+deactivate BFF
+
+Frontend -> Frontend: 登録トークンを保存
+Frontend --> User: 有効期限を通知
+Frontend --> User: 終了
+
+deactivate Frontend
+
+
+== メールの再送要求 ==
+
+
+User -> User: メールの認証URLを確認
+
+User -> Frontend: /verification?code
+activate Frontend
+
+Frontend -> Frontend: 保存していた登録トークンを取得
+Frontend -> BFF: resendVerificationEmail()
+activate BFF
+
+BFF -> Account: メール再送を依頼
+activate Account
+
+Account -> Registeration_Table: 登録トークンから仮アカウント要求
+
+break 存在しない登録トークン
+Account <-- Registeration_Table: 存在しない
+BFF <-- Account: Error
+Frontend <-- BFF: Error
+User <-- Frontend: 不正な登録トークンであることを通知
+Frontend -> Frontend: 登録トークンの削除
+Frontend -> Frontend: redirect /index
+end
+Registeration_Table -> TempAccount_Table: 結びついている仮アカウントを取得
+Account <-- TempAccount_Table: 仮アカウントを取得
+
+Account -> Account: ランダムな認証コードを生成
+Account -> Account: 認証コードの有効期限を計算
+Account -> Registeration_Table: 認証コード，有効期限を保存
+
+Account -> Mailer: 認証コードのメール送信を依頼
+Mailer -> User: 認証URLをメール送信
+
+BFF <-- Account: 有効期限を返却
+deactivate Account
+
+Frontend <-- BFF: 有効期限を返却
+deactivate BFF
+
+User <-- Frontend: 送った旨を通知
+deactivate Frontend
+
+== アカウントを登録 ==
+
+User -> User: メールの認証URLを確認
+
+User -> Frontend: /verification?code
+activate Frontend
+
+Frontend -> Frontend: 保存していた登録トークンを取得
+Frontend -> BFF: registerAccunt()
+activate BFF
+
+BFF -> Account: アカウントの本登録を依頼
+activate Account
+
+Account -> Registeration_Table: 登録トークンから認証コードと有効期限を要求
+Account <-- Registeration_Table: 認証コードと有効期限を返却
+
+break 存在しない登録トークン
+Account <-- Registeration_Table: 存在しない
+BFF <-- Account: Error
+Frontend <-- BFF: Error
+User <-- Frontend: 不正な登録トークンであることを通知
+Frontend -> Frontend: 登録トークンの削除
+Frontend -> Frontend: redirect /index
+end
+
+Account -> Account: 認証コードの一致と有効期限を検証
+break 認証コードに問題がある
+BFF <-- Account: Error
+Frontend <-- BFF: Error
+User <-- Frontend: 不正な認証コードであることを通知
+User <-- Frontend: メールの再送が可能であることを通知
+end
+
+Account -> TempAccount_Table: 仮アカウントの取得
+Account <-- TempAccount_Table: 仮アカウントの情報
+Account -> Account_Table: 仮アカウントの情報を本アカウントに追加
+Account -> TempAccount_Table: 仮アカウント情報を削除
+Account -> Registeration_Table: 登録トークン情報を削除　
+
+Account -> Account: アクセストークンと\nリフレッシュトークンを生成
+
+BFF <-- Account: アクセストークンと\nリフレッシュトークンを返却
+deactivate Account
+
+BFF --> Frontend: アクセストークンと\nリフレッシュトークンを返却
+deactivate BFF
+
+Frontend -> Frontend: アクセストークンと\nリフレッシュトークンを保存
+Frontend -> Frontend: 登録トークンを削除
+Frontend -> Frontend: redirect /me
+
+Frontend --> User: アカウント生成が完了した旨を通知
+
+deactivate Frontend
+
+@enduml
