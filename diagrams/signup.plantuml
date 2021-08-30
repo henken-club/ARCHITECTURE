@@ -1,4 +1,4 @@
-@startuml create-user
+@startuml create-temp-user
 skinparam shadowing false
 skinparam responseMessageBelowArrow true
 skinparam sequenceMessageAlign center
@@ -13,8 +13,6 @@ database "Account" as Account_Table
 database "Registeration" as Registeration_Table
 
 participant "Mailer" as Mailer
-
-== 仮アカウントを作成 ==
 
 User -> Frontend: /signup
 activate Frontend
@@ -63,9 +61,24 @@ Frontend --> User: 終了
 
 deactivate Frontend
 
+@enduml
 
-== メールの再送要求 ==
+@startuml resend-verification-email
 
+skinparam shadowing false
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign center
+
+actor "ユーザ" as User
+participant "Frontend" as Frontend
+participant "BFF" as BFF
+participant "Account" as Account
+
+database "TempAccount" as TempAccount_Table
+database "Account" as Account_Table
+database "Registeration" as Registeration_Table
+
+participant "Mailer" as Mailer
 
 User -> User: メールの認証URLを確認
 
@@ -107,8 +120,23 @@ deactivate BFF
 
 User <-- Frontend: 送った旨を通知
 deactivate Frontend
+@enduml
 
-== アカウントを登録 ==
+@startuml register-user
+skinparam shadowing false
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign center
+
+actor "ユーザ" as User
+participant "Frontend" as Frontend
+participant "BFF" as BFF
+participant "Account" as Account
+
+database "TempAccount" as TempAccount_Table
+database "Account" as Account_Table
+database "Registeration" as Registeration_Table
+
+participant "Mailer" as Mailer
 
 User -> User: メールの認証URLを確認
 
