@@ -27,7 +27,7 @@ API 側は，ユーザには認証コードを付加した**認証 URL**，お�
 
 API はクライアントに登録トークンと有効期限を返却します．クライアント側は登録トークンを保存し，有効期限を念のためにユーザに通知します．
 
-![仮アカウント作成](https://henken-club.github.io/ARCHITECTURE/diagrams/signup/create-temp-user.png)
+![仮アカウント作成](https://henken-club.github.io/architecture/diagrams/signup/create-temp-user.png)
 
 ### アカウントの本登録
 
@@ -45,7 +45,7 @@ API 側では，登録トークン，認証コードのペアを確認します�
 クライアントはアカウントの登録に成功した旨を通知します．
 以降のフローは[Signin](#Signin)を参照してください．
 
-![アカウント登録登録](https://henken-club.github.io/ARCHITECTURE/diagrams/signup/register-user.png)
+![アカウント登録登録](https://henken-club.github.io/architecture/diagrams/signup/register-user.png)
 
 ### 認証メールの再送
 
@@ -62,7 +62,7 @@ API 側では，新しい**認証コード**と，認証コードの**有効期�
 
 API は，有効期限をクライアント側に返信します．クライアントは，メールの再送に成功した旨と，新しい有効期限をユーザに通知します．
 
-![アカウント登録登録](https://henken-club.github.io/ARCHITECTURE/diagrams/signup/resend-verification-email.png)
+![アカウント登録登録](https://henken-club.github.io/architecture/diagrams/signup/resend-verification-email.png)
 
 ## Signin
 
