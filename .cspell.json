@@ -1,0 +1,8 @@
+{
+  "version": "0.1",
+  "language": "en",
+  "words": [],
+  "ignoreWords": ["plantuml", "peaceiris"],
+  "ignorePaths": [".vscode/**", "dist/**", ".cspell.json"],
+  "enableFiletypes": []
+}

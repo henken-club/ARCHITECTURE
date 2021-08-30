@@ -1,21 +1,19 @@
-name: Deploy
+name: CD
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  gh-pages:
+  deploy-gh-pages:
     name: GitHub Pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: sudo apt install plantuml
-      - run: make render
+      - run: make
       - uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
