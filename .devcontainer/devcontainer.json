@@ -1,0 +1,10 @@
+{
+  "name": "figures",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "ubuntu",
+  "workspaceFolder": "/workspace",
+  "extensions": ["jebbs.plantuml"],
+  "settings": {
+    "plantuml.render": "PlantUMLServer",
+  }
+}

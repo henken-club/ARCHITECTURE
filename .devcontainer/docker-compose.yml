@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  ubuntu:
+    image: mcr.microsoft.com/vscode/devcontainers/base:ubuntu
+    tty: true
+    volumes:
+      - ..:/workspace
+
+  plantuml-server:
+    image: plantuml/plantuml-server:jetty
+    ports:
+      - 8080:8080
